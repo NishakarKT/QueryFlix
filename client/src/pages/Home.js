@@ -9,7 +9,7 @@ import AppContext from "../contexts/AppContext";
 import { COMPANY } from "../constants/vars";
 import { QUERY_ENDPOINT } from "../constants/endpoints";
 // mui
-import { Box, Container, Grid, Paper, TextField, Typography, Stack } from "@mui/material";
+import { Box, Container, Grid, Paper, TextField, Typography, Button, Stack } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 // vars
 const opts = {
@@ -24,19 +24,19 @@ const Home = () => {
   const { user } = useContext(AppContext);
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState(null);
 
   console.log(id);
 
   const handleQuery = (e) => {
     e.preventDefault();
-    const query = e.target.query.value;
     setLoading(true);
     try {
       axios
-        .post(QUERY_ENDPOINT, { user_id: user._id, user_name: user.email, video_id: id, user_query: query })
+        .post(QUERY_ENDPOINT, { userId: user._id, user_name: user.email, video_link: "https://www.youtube.com/watch?v=" + id, user_query: query })
         .then((res) => {
-          setAnswer(res.data.answer);
+          setAnswer(res.data.data?.output || "No answer found!");
           setLoading(false);
         })
         .catch((err) => {
@@ -73,13 +73,20 @@ const Home = () => {
         </Grid>
         {id ? (
           <Grid item xs={12}>
-            <Paper sx={{ p: 2 }} component="form" onSubmit={handleQuery}>
-              <Stack spacing={2} alignItems="center">
-                <TextField fullWidth name="query" label="Question" variant="outlined" />
-                <LoadingButton loading={loading} type="submit" variant="contained">
-                  Ask
-                </LoadingButton>
-                <TextField fullWidth multiline inputProps={{ readOnly: true }} value={answer} rows={4} label="Answer" />
+            <Paper sx={{ p: 2 }}>
+              <Stack spacing={2} direction="row">
+                <Stack spacing={2} flex={1}>
+                  <TextField fullWidth name="query" label="Question" variant="outlined" value={query} onChange={e => setQuery(e.target.value)} />
+                  <Stack direction="row" spacing={2}>
+                    <Button fullWidth onClick={() => setQuery("")} color="error" variant="contained">
+                      Clear
+                    </Button>
+                    <LoadingButton fullWidth loading={loading} onClick={handleQuery} variant="contained">
+                      Ask
+                    </LoadingButton>
+                  </Stack>
+                </Stack>
+                <TextField fullWidth multiline sx={{ flex: 1 }} inputProps={{ readOnly: true }} value={answer} rows={4} label="Answer" />
               </Stack>
             </Paper>
           </Grid>

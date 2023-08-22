@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 // vars
-const QUERY_ENDPOINT = "127.0.0.1/8000/query";
+const QUERY_ENDPOINT = "http://127.0.0.1:8000/doubts";
 
 export const query = async (req, res) => {
   try {
